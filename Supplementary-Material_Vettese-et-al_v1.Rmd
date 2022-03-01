@@ -1,0 +1,327 @@
+---
+title: "New evidence of Neandertal butchery traditions through the marrow extraction in southwestern Europe (MIS 5-3)"
+author: "Delphine Vettese, Antony Borel, Ruth Blasco, Louis Chevillard, Trajanka Stavrova, Ursula Thun Hohenstein, Marta Arzarello, Marie-Hélène Moncel, Camille Daujeard"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The code below will allow you to reproduce the figures 9 to 14.
+
+### **Run necessary packages and import data**
+***
+#### **Run required libraries**
+```{r message = FALSE, warning = FALSE}
+library(tidyverse)
+library(readxl)
+library(kableExtra)
+library(knitr)
+library(FactoMineR)
+library(factoextra)
+```
+
+***
+#### **Import data**
+The dataset includes 1380 observations on 8 variables (i.e. 13380 rows and 8 columns). Here, you can scroll along the first 100 rows.
+```{r results='asis'}
+data<-read_excel(path="dataFULL_Vettese.xlsx", sheet = "dataFULL_Vettese", range = "A1:H13381", col_names = TRUE)
+data <- data %>% 
+  mutate_if(is.character, as.factor)
+data$AreaFace <- factor(data$AreaFace, levels = c("p2a", "p3a", "p4a", "p2l", "p3l", "p4l", "p2p", "p3p", "p4p", "p2m", "p3m", "p4m"))
+
+# Explore the first 100 rows of the dataset
+data[1:100,] %>%
+  kbl(align = c(rep("l", 4), rep("c", 12))) %>% #build table
+  kable_classic("hover") %>% #classic table style
+  column_spec(1, width_min = "5em")  %>% #specify first column width
+  scroll_box(width = "900px", height = "200px") #specify table width and height
+```
+***
+
+### **Results**
+#### **Percussion marks analysis**
+##### Non-random and counter-intuitive distribution of percussion marks
+
+```{r}
+#### Data with and without percussion mark
+data.activePMnPM <- data
+
+#### Subset data with percussion mark only
+data.activePM <- data.activePMnPM[data.activePMnPM$ImpactPresence=="PM",-4]
+
+#### Subset data with percussion mark only for each bone element
+data.activePM.Femur <- data.activePM[data.activePM$BoneElement=="Femur",-3]
+data.activePM.Humerus <- data.activePM[data.activePM$BoneElement=="Humerus",-3]
+data.activePM.Radius <- data.activePM[data.activePM$BoneElement=="Radius",-3]
+data.activePM.Tibia <- data.activePM[data.activePM$BoneElement=="Tibia",-3]
+data.activePM.Metacarpal <- data.activePM[data.activePM$BoneElement=="Metacarpal",-3]
+data.activePM.Metatarsal <- data.activePM[data.activePM$BoneElement=="Metatarsal",-3]
+```
+
+##### *Humerus*
+Number of areas with percussion marks for each archaeological site and for the intuitive experiment model for humerus. Portion 2 (P2): proximal diaphysis; Portion 3 (P3): medial diaphysis; Portion 4 (P4): distal diaphysis; sides: anterior (a), lateral (l), posterior (p) and medial (m). [Figure 9 of Vettese et al.]
+```{r fig9a, fig.width = 10, fig.height = 6}
+## Remove data from Experiment
+HumerusNoExpPM <- data.activePM.Humerus[data.activePM.Humerus$Site!="Experiment",]
+HumerusNoExpPM$Site <- factor(HumerusNoExpPM$Site)
+## AreaFace by Site PM, Experiment excluded
+ArchHumerus <- ggplot(HumerusNoExpPM, aes(AreaFace, ..count..))+
+  geom_bar(position = "dodge")+
+  facet_wrap(~Site)
+ArchHumerus
+```
+
+```{r fig9b, fig.width = 4, fig.height = 3}
+## Extraction of the data from the intuitivity experiment for bone with percussion mark only
+HumerusExpIntPM <- data.activePM.Humerus[data.activePM.Humerus$RefData=="Exp_Int",]
+HumerusExpIntPM$RefData <- factor(HumerusExpIntPM$RefData)
+# visualisation
+ExpHumerus <- ggplot(HumerusExpIntPM, aes(AreaFace, ..count..))+
+  geom_bar(position = "dodge")
+ExpHumerus
+```
+
+##### *Radio-ulna*
+Number of areas with percussion marks for each archaeological site and for the intuitive experiment model for radio-ulnas. Portion 2 (P2): proximal diaphysis; Portion 3 (P3): medial diaphysis; Portion 4 (P4): distal diaphysis; sides: anterior (a), lateral (l), posterior (p) and medial (m). [Figure 9 of Vettese et al.]
+```{r fig9c, fig.width = 10, fig.height = 6}
+## Remove data from Experiment
+RadiusNoExpPM <- data.activePM.Radius[data.activePM.Radius$Site!="Experiment",]
+RadiusNoExpPM$Site <- factor(RadiusNoExpPM$Site)
+## AreaFace by Site PM, Experiment excluded
+ArchRadius <- ggplot(RadiusNoExpPM, aes(AreaFace, ..count..))+
+  geom_bar(position = "dodge")+
+  facet_wrap(~Site)
+ArchRadius
+```
+
+```{r fig9d, fig.width = 4, fig.height = 3}
+## Extraction of the data from the intuitivity experiment for bone with percussion mark only
+RadiusExpIntPM <- data.activePM.Radius[data.activePM.Radius$RefData=="Exp_Int",]
+RadiusExpIntPM$RefData <- factor(RadiusExpIntPM$RefData)
+# visualisation
+ExpRadius <- ggplot(RadiusExpIntPM, aes(AreaFace, ..count..))+
+  geom_bar(position = "dodge")
+ExpRadius
+```
+
+##### *Femur*
+Number of areas with percussion marks for each archaeological site and for the intuitive experiment model for femora. Portion 2 (P2): proximal diaphysis; Portion 3 (P3): medial diaphysis; Portion 4 (P4): distal diaphysis; sides: anterior (a), lateral (l), posterior (p) and medial (m). [Figure 10 of Vettese et al.]
+```{r fig10a, fig.width = 10, fig.height = 6}
+## Remove data from Experiment
+FemurNoExpPM <- data.activePM.Femur[data.activePM.Femur$Site!="Experiment",]
+FemurNoExpPM$Site <- factor(FemurNoExpPM$Site)
+## AreaFace by Site PM, Experiment excluded
+ArchFemur <- ggplot(FemurNoExpPM, aes(AreaFace, ..count..))+
+  geom_bar(position = "dodge")+
+  facet_wrap(~Site)
+ArchFemur
+```
+
+```{r fig10b, fig.width = 4, fig.height = 3}
+## Extraction of the data from the intuitivity experiment for bone with percussion mark only
+FemurExpIntPM <- data.activePM.Femur[data.activePM.Femur$RefData=="Exp_Int",]
+FemurExpIntPM$RefData <- factor(FemurExpIntPM$RefData)
+# visualisation
+ExpFemur <- ggplot(FemurExpIntPM, aes(AreaFace, ..count..))+
+  geom_bar(position = "dodge")
+ExpFemur
+```
+
+##### *Tibia*
+Number of areas with percussion marks for each archaeological site and for the intuitive experiment model for tibias. Portion 2 (P2): proximal diaphysis; Portion 3 (P3): medial diaphysis; Portion 4 (P4): distal diaphysis; sides: anterior (a), lateral (l), posterior (p) and medial (m). [Figure 10 of Vettese et al.]
+```{r fig10c, fig.width = 10, fig.height = 6}
+## Remove data from Experiment
+TibiaNoExpPM <- data.activePM.Tibia[data.activePM.Tibia$Site!="Experiment",]
+TibiaNoExpPM$Site <- factor(TibiaNoExpPM$Site)
+## AreaFace by Site PM, Experiment excluded
+ArchTibia <- ggplot(TibiaNoExpPM, aes(AreaFace, ..count..))+
+  geom_bar(position = "dodge")+
+  facet_wrap(~Site)
+ArchTibia
+```
+
+```{r fig10d, fig.width = 4, fig.height = 3}
+## Extraction of the data from the intuitivity experiment for bone with percussion mark only
+TibiaExpIntPM <- data.activePM.Tibia[data.activePM.Tibia$RefData=="Exp_Int",]
+TibiaExpIntPM$RefData <- factor(TibiaExpIntPM$RefData)
+# visualisation
+ExpTibia <- ggplot(TibiaExpIntPM, aes(AreaFace, ..count..))+
+  geom_bar(position = "dodge")
+ExpTibia
+```
+
+##### *Metatarsal*
+Number of areas with percussion marks for each archaeological site for metatarsals. Portion 2 (P2): proximal diaphysis; Portion 3 (P3): medial diaphysis; Portion 4 (P4): distal diaphysis; sides: anterior (a), lateral (l), posterior (p) and medial (m). [Figure 11 of Vettese et al.]
+```{r fig11a, fig.width = 10, fig.height = 6}
+## Remove data from Experiment
+MetatarsalNoExpPM <- data.activePM.Metatarsal[data.activePM.Metatarsal$Site!="Experiment",]
+MetatarsalNoExpPM$Site <- factor(MetatarsalNoExpPM$Site)
+## AreaFace by Site PM, Experiment excluded
+ArchMetatarsal <- ggplot(MetatarsalNoExpPM, aes(AreaFace, ..count..))+
+  geom_bar(position = "dodge")+
+  facet_wrap(~Site)
+ArchMetatarsal
+```
+
+##### *Metacarpal*
+Number of areas with percussion marks for each archaeological site for metacarpals. Portion 2 (P2): proximal diaphysis; Portion 3 (P3): medial diaphysis; Portion 4 (P4): distal diaphysis; sides: anterior (a), lateral (l), posterior (p) and medial (m). [Figure 11 of Vettese et al.]
+```{r fig11c, fig.width = 10, fig.height = 6}
+## Remove data from Experiment
+MetacarpalNoExpPM <- data.activePM.Metacarpal[data.activePM.Metacarpal$Site!="Experiment",]
+MetacarpalNoExpPM$Site <- factor(MetacarpalNoExpPM$Site)
+## AreaFace by Site PM, Experiment excluded
+ArchMetacarpal <- ggplot(MetacarpalNoExpPM, aes(AreaFace, ..count..))+
+  geom_bar(position = "dodge")+
+  facet_wrap(~Site)
+ArchMetacarpal
+```
+
+#### **Non-random and counter-intuitive distribution of percussion marks**
+##### *Humerus*
+MCA of the areas with percussion marks by bone portion and side for humerus. Sites are included as illustrative variable only. Cos² are displayed following a colour gradient. [Figure 12a and b of Vettese et al.]
+```{r fig12a, fig.width = 7, fig.height = 6}
+## Compute MCA
+Humerus.res.mca <- MCA(data.activePM.Humerus[, 1:4], ncp = 4, ind.sup = NULL, quanti.sup = NULL, 
+               quali.sup = c(1,2), excl=NULL, graph = FALSE, 
+               level.ventil = 0, axes = c(1,2), row.w = NULL, 
+               method="Indicator", na.method="NA", tab.disj=NULL)
+## Color by cos2 values: quality on the factor map
+fviz_mca_var(Humerus.res.mca, axes = c(1, 2), col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE, # Avoid text overlapping
+             ggtheme = theme_minimal())
+
+# Color individuals by groups
+fviz_mca_ind(Humerus.res.mca, 
+             label = "none", # hide individual labels
+             habillage = "Site", # color by groups 
+             palette = "ngs",
+             addEllipses = TRUE, ellipse.type = "confidence",
+             ggtheme = theme_minimal()) 
+```
+
+##### *Radio-ulna*
+MCA of the areas with percussion marks by bone portion and side for radio-ulna. Sites are included as illustrative variable only. Cos² are displayed following a colour gradient. [Figure 12 c and d of Vettese et al.]
+```{r fig12b, fig.width = 7, fig.height = 6}
+## Compute MCA
+Radius.res.mca <- MCA(data.activePM.Radius[, 1:4], ncp = 4, ind.sup = NULL, quanti.sup = NULL, 
+               quali.sup = c(1,2), excl=NULL, graph = FALSE, 
+               level.ventil = 0, axes = c(1,2), row.w = NULL, 
+               method="Indicator", na.method="NA", tab.disj=NULL)
+## Color by cos2 values: quality on the factor map
+fviz_mca_var(Radius.res.mca, axes = c(1, 2), col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE, # Avoid text overlapping
+             ggtheme = theme_minimal())
+
+# Color individuals by groups
+fviz_mca_ind(Radius.res.mca, 
+             label = "none", # hide individual labels
+             habillage = "Site", # color by groups 
+             palette = "ngs",
+             addEllipses = TRUE, ellipse.type = "confidence",
+             ggtheme = theme_minimal()) 
+```
+
+##### *Femur*
+MCA of the areas with percussion marks by bone portion and side for femur. Sites are included as illustrative variable only. Cos² are displayed following a colour gradient. [Figure 13a and b of Vettese et al.]
+```{r fig13a, fig.width = 7, fig.height = 6}
+## Compute MCA
+Femur.res.mca <- MCA(data.activePM.Femur[, 1:4], ncp = 4, ind.sup = NULL, quanti.sup = NULL, 
+               quali.sup = c(1,2), excl=NULL, graph = FALSE, 
+               level.ventil = 0, axes = c(1,2), row.w = NULL, 
+               method="Indicator", na.method="NA", tab.disj=NULL)
+## Color by cos2 values: quality on the factor map
+fviz_mca_var(Femur.res.mca, axes = c(1, 2), col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE, # Avoid text overlapping
+             ggtheme = theme_minimal())
+
+# Color individuals by groups
+fviz_mca_ind(Femur.res.mca, 
+             label = "none", # hide individual labels
+             habillage = "Site", # color by groups 
+             palette = "ngs",
+             addEllipses = TRUE, ellipse.type = "confidence",
+             ggtheme = theme_minimal()) 
+```
+
+##### *Tibia*
+MCA of the areas with percussion marks by bone portion and side for tibia. Sites are included as illustrative variable only. Cos² are displayed following a colour gradient. [Figure 13c and d of Vettese et al.]
+```{r fig13b, fig.width = 7, fig.height = 6}
+## Compute MCA
+Tibia.res.mca <- MCA(data.activePM.Tibia[, 1:4], ncp = 4, ind.sup = NULL, quanti.sup = NULL, 
+               quali.sup = c(1,2), excl=NULL, graph = FALSE, 
+               level.ventil = 0, axes = c(1,2), row.w = NULL, 
+               method="Indicator", na.method="NA", tab.disj=NULL)
+## Color by cos2 values: quality on the factor map
+fviz_mca_var(Tibia.res.mca, axes = c(1, 2), col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE, # Avoid text overlapping
+             ggtheme = theme_minimal())
+
+# Color individuals by groups
+fviz_mca_ind(Tibia.res.mca, 
+             label = "none", # hide individual labels
+             habillage = "Site", # color by groups 
+             palette = "ngs",
+             addEllipses = TRUE, ellipse.type = "confidence",
+             ggtheme = theme_minimal()) 
+```
+
+##### *Metacarpal*
+MCA of the areas with percussion marks by bone portion and side for metacarpal. Sites are included as illustrative variable only. Cos² are displayed following a colour gradient. [Figure 14a and b of Vettese et al.]
+```{r fig14a, fig.width = 7, fig.height = 6}
+## Compute MCA
+Metacarpal.res.mca <- MCA(data.activePM.Metacarpal[, 1:4], ncp = 4, ind.sup = NULL, quanti.sup = NULL,
+                          quali.sup = c(1,2), excl=NULL, graph = FALSE,
+                          level.ventil = 0, axes = c(1,2), row.w = NULL,
+                          method="Indicator", na.method="NA", tab.disj=NULL)
+## Color by cos2 values: quality on the factor map
+fviz_mca_var(Metacarpal.res.mca, axes = c(1, 2), col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE, # Avoid text overlapping
+             ggtheme = theme_minimal())
+
+# Color individuals by groups
+fviz_mca_ind(Metacarpal.res.mca, 
+             label = "none", # hide individual labels
+             habillage = "Site", # color by groups 
+             palette = "ngs",
+             addEllipses = TRUE, ellipse.type = "confidence",
+             ggtheme = theme_minimal()) 
+```
+
+##### *Metatarsal*
+MCA of the areas with percussion marks by bone portion and side for metatarsal. Sites are included as illustrative variable only. Cos² are displayed following a colour gradient. [Figure 14c and d of Vettese et al.]
+```{r fig14b, fig.width = 7, fig.height = 6}
+## Compute MCA
+Metatarsal.res.mca <- MCA(data.activePM.Metatarsal[, 1:4], ncp = 4, ind.sup = NULL, quanti.sup = NULL, 
+               quali.sup = c(1,2), excl=NULL, graph = FALSE, 
+               level.ventil = 0, axes = c(1,2), row.w = NULL, 
+               method="Indicator", na.method="NA", tab.disj=NULL)
+## Color by cos2 values: quality on the factor map
+fviz_mca_var(Metatarsal.res.mca, axes = c(1, 2), col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE, # Avoid text overlapping
+             ggtheme = theme_minimal())
+
+# Color individuals by groups
+fviz_mca_ind(Metatarsal.res.mca, 
+             label = "none", # hide individual labels
+             habillage = "Site", # color by groups 
+             palette = "ngs",
+             addEllipses = TRUE, ellipse.type = "confidence",
+             ggtheme = theme_minimal()) 
+```
+
+
+
+
+
+
+
+
